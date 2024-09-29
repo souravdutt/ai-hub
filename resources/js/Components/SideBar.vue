@@ -1,5 +1,5 @@
 <script setup>
-import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/vue/24/solid';
+import { ArrowLeftIcon, ArrowRightIcon, ArrowTopRightOnSquareIcon } from '@heroicons/vue/24/solid';
 import { Link } from '@inertiajs/vue3';
 
 // Props
@@ -19,7 +19,7 @@ const toggleSidebar = () => {
     <aside
         @blur="toggleSidebar"
         :class="{ '-ms-64': sidebarVisible, 'ms-0': !sidebarVisible }"
-        class="flex fixed flex-col z-50 w-64 h-screen px-5 py-8 overflow-y-auto transition-all duration-300 bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700"
+        class="flex fixed flex-col z-50 w-64 h-screen px-5 pt-5 pb-2 overflow-y-auto transition-all duration-300 bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700"
     >
         <button
             @click="toggleSidebar"
@@ -39,8 +39,8 @@ const toggleSidebar = () => {
         </Link>
 
         <div class="flex flex-col justify-between flex-1 mt-6">
-            <nav class="-mx-3 space-y-6 ">
-                <div class="space-y-3 ">
+            <nav class="-mx-3 space-y-6 max-h-[calc(100vh-9rem)] overflow-y-auto">
+                <div class="space-y-3">
                     <label class="px-3 text-xs text-gray-500 uppercase dark:text-gray-400">
                         NLP Models
                     </label>
@@ -55,9 +55,25 @@ const toggleSidebar = () => {
 
                         <span class="mx-2 text-sm font-medium">EveryDay AI <span class="text-xs bg-red-500 ms-1 text-white p-1 rounded">New</span></span>
                     </Link>
-
                 </div>
             </nav>
+            <footer
+                class="flex flex-col gap-2 py-4 text-center text-sm text-black/70 dark:text-white/70"
+            >
+                <div class="">
+                    <a
+                        href="https://github.com/souravdutt/ai-hub"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="flex align-center justify-center gap-1 text-black/70 dark:text-white/70"
+                    >
+                        Github <ArrowTopRightOnSquareIcon class="inline w-4 h-4" />
+                    </a>
+                </div>
+                <div class="">
+                    &copy; {{ new Date().getFullYear() }} &#124; AI Hub &#124; v1.0.0
+                </div>
+            </footer>
         </div>
     </aside>
 </template>

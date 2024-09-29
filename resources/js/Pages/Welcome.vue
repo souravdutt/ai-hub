@@ -78,12 +78,6 @@ const messages = ref([
                     <ChatWindow :messages="messages" />
 
                 </main>
-
-                <!-- <footer
-                    class="py-16 text-center text-sm text-black dark:text-white/70"
-                >
-                    AI Hub v1.0.0
-                </footer> -->
             </div>
         </div>
     </div>
