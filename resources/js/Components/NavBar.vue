@@ -19,7 +19,7 @@ onMounted(() => {
 
 <template>
     <header
-        class="w-full grid items-center gap-2 py-5"
+        class="w-full grid items-center gap-2 py-2"
     >
         <nav class="-mx-3 flex flex-1 justify-end">
             <Link
