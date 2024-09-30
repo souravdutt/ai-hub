@@ -4,7 +4,7 @@ import { Link } from '@inertiajs/vue3';
 
 // Props
 const props = defineProps({
-    sidebarVisible: Boolean
+    sidebarHidden: Boolean
 });
 
 // Emit function to notify the parent component
@@ -16,18 +16,25 @@ const toggleSidebar = () => {
 </script>
 
 <template>
+    <!-- overlay -->
+    <div
+        @click="toggleSidebar"
+        v-if="!sidebarHidden"
+        class="lg:hidden absolute z-50 bg-black/60 w-screen h-screen"
+    ></div>
     <aside
         @blur="toggleSidebar"
-        :class="{ '-ms-64': sidebarVisible, 'ms-0': !sidebarVisible }"
+        :class="{ '-ms-64': sidebarHidden, 'ms-0': !sidebarHidden }"
         class="flex fixed flex-col z-50 w-64 h-screen px-5 pt-5 pb-2 overflow-y-auto transition-all duration-300 bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700"
     >
+        <!-- Toggle button -->
         <button
             @click="toggleSidebar"
-            :class="{ 'start-64 -ms-6 rounded-s': !sidebarVisible, 'start-0 rounded-e': sidebarVisible }"
+            :class="{ 'start-64 -ms-6 rounded-s': !sidebarHidden, 'start-0 rounded-e': sidebarHidden }"
             class="fixed top-1/2 z-10 h-12 px-1 opacity-50 hover:opacity-100 transition-all duration-300 bg-black text-white dark:bg-white dark:text-black"
-            :title="{ true: 'Hide Sidebar', false: 'Show Sidebar' }[sidebarVisible]"
+            :title="{ true: 'Hide Sidebar', false: 'Show Sidebar' }[sidebarHidden]"
         >
-            <ArrowLeftIcon v-if="!sidebarVisible" class="w-4 h-4" />
+            <ArrowLeftIcon v-if="!sidebarHidden" class="w-4 h-4" />
             <ArrowRightIcon v-else class="w-4 h-4" />
         </button>
 

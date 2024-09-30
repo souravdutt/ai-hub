@@ -4,14 +4,18 @@ import SideBar from '@/Components/SideBar.vue';
 import ChatWindow from '@/Components/ChatWindow.vue';
 import { onMounted, ref }  from 'vue';
 
-const sidebarVisible = ref(localStorage.sidebar == 'true');
+const sidebarHidden = ref(localStorage.sidebar == 'true');
 
 const toggleSidebar = () => {
-    sidebarVisible.value = localStorage.sidebar = !sidebarVisible.value;
+    sidebarHidden.value = localStorage.sidebar = !sidebarHidden.value;
 }
 
 onMounted(() => {
-    sidebarVisible.value = localStorage.sidebar == 'true';
+    //check window size
+    if (window.innerWidth < 768) {
+        localStorage.sidebar = 'true';
+    }
+    sidebarHidden.value = localStorage.sidebar == 'true';
 });
 
 // dummy messages
@@ -64,10 +68,10 @@ const messages = ref([
 
     <div class="bg-gray-50 flex text-black/50 dark:bg-black dark:text-white/50">
 
-        <SideBar :sidebar-visible="sidebarVisible" @toggle-sidebar="toggleSidebar" />
+        <SideBar :sidebar-hidden="sidebarHidden" @toggle-sidebar="toggleSidebar" />
 
         <div
-            :class="{ 'lg:ms-64': !sidebarVisible }"
+            :class="{ 'lg:ms-64': !sidebarHidden }"
             class="w-full relative flex min-h-screen flex-col items-center justify-center selection:bg-[#FF2D20] selection:text-white transition-all duration-300"
         >
             <div class="relative w-full px-6 ">
