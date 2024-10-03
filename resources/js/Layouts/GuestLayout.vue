@@ -7,7 +7,7 @@ import { Link } from '@inertiajs/vue3';
 <template>
     <div class="bg-gray-50 text-black/50 dark:bg-black dark:text-white/50">
 
-        <div class="relative selection:bg-[#FF2D20] selection:text-white">
+        <div class="relative selection:bg-primary-500 selection:text-primary-50">
 
             <div class="flex min-h-screen flex-col items-center w-full max-w-2xl mx-auto px-6 lg:max-w-7xl">
                 <NavBar />

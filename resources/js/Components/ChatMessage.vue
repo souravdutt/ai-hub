@@ -4,7 +4,7 @@ const props = defineProps({
     message: {
         type: Object,
         required: true
-    }
+    },
 });
 
 </script>
@@ -15,15 +15,20 @@ const props = defineProps({
     >
 
         <div
-        class="w-full max-w-2xl"
-        :class="{
-            'self-end': message.user === 'user'
-        }"
+            class="w-full max-w-[90%]"
+            :class="{
+                'self-end': message.sender === 'user'
+            }"
         >
             <div
-                class="w-full rounded-lg border whitespace-pre-line border-black/20 bg-white px-4 py-3 text-lg text-black/70 dark:border-white/10 dark:bg-zinc-900 dark:text-white/70"
+                class="w-full rounded-lg border border-black/20 bg-white px-4 py-3 text-lg text-black/70 dark:border-white/10 dark:bg-zinc-900 dark:text-white/70"
             >
-                {{ message.body }}
+                <span v-html="message.body" />
+                <span
+                    v-if="message.typing"
+                    class="inline-flex ms-1 relative h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-600 opacity-75"></span>
+                </span>
             </div>
         </div>
     </div>

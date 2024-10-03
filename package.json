@@ -18,6 +18,8 @@
         "vue": "^3.4.0"
     },
     "dependencies": {
-        "@heroicons/vue": "^2.1.5"
+        "@heroicons/vue": "^2.1.5",
+        "dompurify": "^3.1.7",
+        "marked": "^14.1.2"
     }
 }
