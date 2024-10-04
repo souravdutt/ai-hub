@@ -12,3 +12,7 @@ h3 { @apply text-xl mb-2 }
 h4 { @apply text-lg }
 h5 { @apply text-base }
 h6 { @apply text-sm }
+p { @apply mb-2 }
+ul { @apply list-disc list-inside mb-2 }
+ol { @apply list-decimal list-inside mb-2 }
+a { @apply text-primary-500 hover:text-primary-600 }

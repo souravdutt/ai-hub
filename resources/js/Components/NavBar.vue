@@ -21,7 +21,18 @@ onMounted(() => {
     <header
         class="w-full grid items-center gap-2 py-2"
     >
-        <nav class="-mx-3 flex flex-1 justify-end">
+        <nav class="-mx-3 flex flex-1">
+            <!-- Start -->
+
+            <!-- End -->
+            <button
+                class="rounded-full ms-auto h-7 w-7 mx-2 self-center text-center text-black ring-1 ring-black dark:ring-white transition hover:text-black/70 dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+                @click="toggleTheme()"
+            >
+                <SunIcon v-if="theme == 'dark'" class="h-5 w-5 mx-auto" />
+                <MoonIcon v-else class="h-5 w-5 mx-auto" />
+            </button>
+
             <Link
                 v-if="$page.props.auth.user"
                 :href="route('dashboard')"
@@ -31,14 +42,6 @@ onMounted(() => {
             </Link>
 
             <template v-else>
-                <button
-                    class="rounded-full h-7 w-7 mx-2 self-center text-center text-black ring-1 ring-black dark:ring-white transition hover:text-black/70 dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
-                    @click="toggleTheme()"
-                >
-                    <SunIcon v-if="theme == 'dark'" class="h-5 w-5 mx-auto" />
-                    <MoonIcon v-else class="h-5 w-5 mx-auto" />
-                </button>
-
                 <Link
                     :href="route('login')"
                     class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"

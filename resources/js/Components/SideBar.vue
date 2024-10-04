@@ -22,10 +22,11 @@ const toggleSidebar = () => {
         v-if="!sidebarHidden"
         class="lg:hidden absolute z-50 bg-black/60 w-screen h-screen"
     ></div>
+
     <aside
         @blur="toggleSidebar"
         :class="{ '-ms-64': sidebarHidden, 'ms-0': !sidebarHidden }"
-        class="flex fixed flex-col z-50 w-64 h-screen px-5 pt-5 pb-2 overflow-y-auto transition-all duration-300 bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700"
+        class="flex pt-12 fixed flex-col z-50 w-64 h-screen px-5 pb-2 overflow-y-auto transition-all duration-300 bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700"
     >
         <!-- Toggle button -->
         <button
@@ -37,13 +38,6 @@ const toggleSidebar = () => {
             <ArrowLeftIcon v-if="!sidebarHidden" class="w-4 h-4" />
             <ArrowRightIcon v-else class="w-4 h-4" />
         </button>
-
-        <Link
-            :href="route('welcome')"
-            class="text-xl font-extrabold"
-        >
-            {{ $page.props.app.name }}
-        </Link>
 
         <div class="flex flex-col justify-between flex-1 mt-6">
             <nav class="-mx-3 space-y-6 max-h-[calc(100vh-9rem)] overflow-y-auto">
@@ -83,4 +77,12 @@ const toggleSidebar = () => {
             </footer>
         </div>
     </aside>
+
+    <Link
+        :href="route('welcome')"
+        class="text-xl font-extrabold absolute start-0 ms-5 mt-9 z-50"
+    >
+        {{ $page.props.app.name }}
+    </Link>
+
 </template>
