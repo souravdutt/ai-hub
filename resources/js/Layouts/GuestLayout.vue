@@ -10,6 +10,7 @@ import { Link } from '@inertiajs/vue3';
         <div class="relative selection:bg-primary-500 selection:text-primary-50">
 
             <div class="flex min-h-screen flex-col items-center w-full max-w-2xl mx-auto px-6 lg:max-w-7xl">
+
                 <NavBar />
 
                 <div class="relative flex flex-grow flex-col justify-center w-full">
@@ -19,7 +20,7 @@ import { Link } from '@inertiajs/vue3';
 
                         <div>
                             <Link href="/">
-                            <ApplicationLogo class="h-20 w-20 fill-current text-gray-500" />
+                                <ApplicationLogo />
                             </Link>
                         </div>
 

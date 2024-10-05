@@ -2,13 +2,14 @@
 
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TextToImageController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome');
-})->name('welcome');
+Route::get('/', [ChatController::class, 'index'])->name('welcome');
 Route::post('chat', [ChatController::class, 'store'])->name('chat');
+Route::get('/text-to-image', [TextToImageController::class, 'index'])->name('text-to-image');
+Route::post('text-to-image', [TextToImageController::class, 'generate']);
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');

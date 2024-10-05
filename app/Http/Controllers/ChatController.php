@@ -16,6 +16,11 @@ class ChatController extends Controller
         $this->workersAI = $workersAI;
     }
 
+    public function index()
+    {
+        return Inertia::render('Welcome');
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
