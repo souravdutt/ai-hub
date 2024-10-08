@@ -1,6 +1,6 @@
 <script setup>
 import ChatMessage from '@/Components/ChatMessage.vue';
-import { ArrowUpIcon, XMarkIcon } from '@heroicons/vue/24/solid';
+import { ArrowUpIcon, XMarkIcon, ChatBubbleLeftRightIcon } from '@heroicons/vue/24/outline';
 import { defineModel } from 'vue';
 
 const form = defineModel('form', {
@@ -33,6 +33,12 @@ const disabled = defineModel('disabled', {
     required: false,
 });
 
+const hintMessages = [
+    'Write hello world in top five programming languages.',
+    'How to learn JavaScript?',
+    'How can I make myself productive?',
+];
+
 </script>
 
 <template>
@@ -43,7 +49,26 @@ const disabled = defineModel('disabled', {
         >
 
             <div class="w-full">
-                <ChatMessage v-for="message in messages" :key="message.id" :message="message" />
+                <ChatMessage v-if="messages.length" v-for="message in messages" :key="message.id" :message="message" />
+                <div v-else class="flex flex-col items-center justify-center gap-6">
+                    <ChatBubbleLeftRightIcon class="h-24 w-24 text-primary-700 dark:text-primary-700" />
+                    <span class="text-2xl">
+                        Start conversation
+                    </span>
+                    <span>
+                        Write your message or start with one of the following message
+                    </span>
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div
+                            v-for="message in hintMessages"
+                            :key="message"
+                            class="flex justify-center items-center rounded-lg px-4 py-8 text-center cursor-pointer bg-primary-50 text-primary-800 dark:bg-primary-900 dark:text-white"
+                            @click="sendMessage(null, message)"
+                        >
+                            {{ message }}
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>

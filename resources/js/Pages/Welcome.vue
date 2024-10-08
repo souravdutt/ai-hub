@@ -2,9 +2,22 @@
 import ChatWindow from '@/Components/ChatWindow.vue';
 import ChatLayout from '@/Layouts/ChatLayout.vue';
 import { onMounted, ref } from 'vue';
-import { marked } from 'marked'
+import { Marked } from 'marked'
 import DOMPurify from 'dompurify'
 import { useForm } from '@inertiajs/vue3';
+import { markedHighlight } from "marked-highlight";
+import hljs from 'highlight.js';
+import 'highlight.js/styles/atom-one-dark.min.css';
+
+const marked = new Marked(
+  markedHighlight({
+    langPrefix: 'hljs language-',
+    highlight(code, lang, info) {
+      const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+      return hljs.highlight(code, { language }).value;
+    }
+  })
+);
 
 const chatWindow = ref(null);
 const errors = ref(null);
@@ -18,18 +31,23 @@ const form = useForm({
 });
 
 // methods
-const scrollToBottom = () => {
-    if (chatWindow.value.$el) {
-        chatWindow.value.$el.scrollTop = chatWindow.value.$el.scrollHeight;
+const scrollToBottom = (container) => {
+    if (container) {
+        container.scrollTop = container.scrollHeight;
     }
 };
 
-const sendMessage = async () => {
-    if (form.message?.trim()) {
+const sendMessage = async (e, message = null) => {
+    if (message !== null) {
+        form.message = message;
+    }
+
+    const sentMessage = DOMPurify.sanitize(form.message.replace(/\n/g, '<br>'));
+
+    if (sentMessage?.trim()) {
         disabled.value = true;
         errors.value = null;
 
-        const sentMessage = DOMPurify.sanitize(form.message.replace(/\n/g, '<br>'));
 
         // add user message to messages
         messages.value.push({
@@ -55,7 +73,7 @@ const sendMessage = async () => {
         characterCount.value = 0;
 
         setTimeout(() => { // slight delay to wait for the messages to be rendered
-            scrollToBottom();
+            scrollToBottom(chatWindow.value.$el);
         }, 50);
 
         await fetch(route('chat'), {
@@ -93,7 +111,7 @@ const sendMessage = async () => {
                 const decoder = new TextDecoder("utf-8");
 
                 let scrolledByUser = false;
-                let prevLastLine = "";
+                let prevLastLine, responseText = "";
 
                 // Detect user scroll in the chatWindow
                 chatWindow.value.$el.addEventListener("wheel", () => { scrolledByUser = true; });
@@ -111,7 +129,7 @@ const sendMessage = async () => {
 
                             if (!scrolledByUser) {
                                 setTimeout(() => { // slight delay to wait for the html to be rendered
-                                    scrollToBottom();
+                                    scrollToBottom(chatWindow.value.$el);
                                 }, 50);
                             }
 
@@ -149,7 +167,10 @@ const sendMessage = async () => {
                                     try {
                                         const parsedData = JSON.parse(buffer);
                                         if (parsedData?.response) {
-                                            responseMessage.body += parsedData.response;
+                                            responseText += parsedData.response;
+                                            responseMessage.body = marked.parse(responseText);
+                                            // let html = DOMPurify.sanitize(marked.parse(responseMessage.body));
+                                            // responseMessage.body = html;
                                         }
                                     } catch (error) {
                                         console.error("Error parsing chunk:", error);
@@ -158,7 +179,7 @@ const sendMessage = async () => {
                                     document.querySelector(".conversation .loading-response")?.remove();
 
                                     if (!scrolledByUser) {
-                                        scrollToBottom();
+                                        scrollToBottom(chatWindow.value.$el);
                                     }
                                 }
                             }

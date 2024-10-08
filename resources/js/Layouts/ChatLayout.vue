@@ -26,7 +26,7 @@ onMounted(() => {
 
         <div
             :class="{ 'lg:ms-64': !sidebarHidden }"
-            class="w-full relative flex min-h-screen flex-col items-center justify-center selection:bg-[#FF2D20] selection:text-white transition-all duration-300"
+            class="w-full relative flex min-h-screen flex-col items-center justify-center transition-all duration-300"
         >
             <div class="relative w-full px-6 ">
                 <NavBar />
