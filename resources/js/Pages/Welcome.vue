@@ -7,16 +7,17 @@ import DOMPurify from 'dompurify'
 import { useForm } from '@inertiajs/vue3';
 import { markedHighlight } from "marked-highlight";
 import hljs from 'highlight.js';
+
 import 'highlight.js/styles/atom-one-dark.min.css';
 
 const marked = new Marked(
-  markedHighlight({
-    langPrefix: 'hljs language-',
-    highlight(code, lang, info) {
-      const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-      return hljs.highlight(code, { language }).value;
-    }
-  })
+    markedHighlight({
+        langPrefix: 'hljs language-',
+        highlight(code, lang, info) {
+            const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+            return hljs.highlight(code, { language }).value;
+        }
+    })
 );
 
 const chatWindow = ref(null);
@@ -45,9 +46,15 @@ const sendMessage = async (e, message = null) => {
     const sentMessage = DOMPurify.sanitize(form.message.replace(/\n/g, '<br>'));
 
     if (sentMessage?.trim()) {
+        const history = messages.value.map((message) => {
+            return {
+                sender: message.sender,
+                message: message.body,
+            }
+        });
+
         disabled.value = true;
         errors.value = null;
-
 
         // add user message to messages
         messages.value.push({
@@ -67,6 +74,7 @@ const sendMessage = async (e, message = null) => {
         const responseMessage = messages.value[messages.value.length - 1];
 
         const formData = form.data();
+        formData.history = history;
 
         // reset form
         form.reset();
@@ -98,7 +106,7 @@ const sendMessage = async (e, message = null) => {
                         });
                     } else {
                         return response.text().then(function (text) {
-                            console.error('Error:', text);
+                            errors.value = { message: 'Something went wrong, please try again.', text: text }
                             return Promise.reject(errors);
                         });
                     }
@@ -169,8 +177,6 @@ const sendMessage = async (e, message = null) => {
                                         if (parsedData?.response) {
                                             responseText += parsedData.response;
                                             responseMessage.body = marked.parse(responseText);
-                                            // let html = DOMPurify.sanitize(marked.parse(responseMessage.body));
-                                            // responseMessage.body = html;
                                         }
                                     } catch (error) {
                                         console.error("Error parsing chunk:", error);

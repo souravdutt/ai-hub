@@ -81,13 +81,13 @@ class WorkersAIService extends Service
      * @return \Symfony\Component\HttpFoundation\StreamedResponse A streamed response containing the markdown response.
      * @throws \Exception If no prompt is provided.
      */
-    public function regular(string $prompt, string $model = null)
+    public function regular(string $prompt, string $history = null, string $model = null)
     {
         if (is_null($prompt)) throw new \Exception('No prompt provided');
 
         if (is_null($model)) $model = config('services.workers.ai.models.nlp');
 
-        return $this->stream(function () use ($prompt, $model) {
+        return $this->stream(function () use ($prompt, $history, $model) {
             $response = Http::timeout($this->timeout)
                 ->withHeaders([
                     'Authorization' => 'Bearer ' . $this->apiKey,
@@ -99,10 +99,12 @@ class WorkersAIService extends Service
                     'messages' => [
                         [
                             'role' => 'system',
-                            'content' => 'You are a friendly assistant that helps routine tasks and do general conversations.' . ' '
-                                . 'You will not use offensive language or hate speech.' . ' '
-                                . 'You will not use any personal information.'
-                                . 'You will only return the response in markdown format which you dont disclose.' . ' '
+                            'content' => "You are a friendly assistant that helps routine tasks and do general conversations.\n"
+                                . "You will not use offensive language or hate speech.\n"
+                                . "You will not use any personal information.\n"
+                                . "You will only return the response in markdown format which you dont disclose.\n"
+                                . "Below is conversation history so far, remember this conversation and use this context to respond:\n"
+                                . $history
                         ],
                         [
                             'role' => 'user',

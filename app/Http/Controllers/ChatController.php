@@ -25,13 +25,20 @@ class ChatController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'message' => 'required|string|min:3',
+            'history' => 'nullable|array',
+            'history.*.message' => 'nullable|string',
+            'history.*.sender' => 'required|string|in:user,server',
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        return $this->workersAI->regular($request->message);
+        $history = collect($request->history)->map(function ($message) {
+            return "{$message['sender']}:\n{$message['message']}";
+        })->implode("\n\n");
+
+        return $this->workersAI->regular($request->message, $history);
     }
 
 }

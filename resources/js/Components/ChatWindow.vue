@@ -34,7 +34,7 @@ const disabled = defineModel('disabled', {
 });
 
 const hintMessages = [
-    'Write hello world in top five programming languages.',
+    'Write hello world program in three programming language.',
     'How to learn JavaScript?',
     'How can I make myself productive?',
 ];
