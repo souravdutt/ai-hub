@@ -6,7 +6,7 @@ import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import { useForm } from '@inertiajs/vue3';
 
-const chatWindowRef = ref(null);
+const chatWindow = ref(null);
 const errors = ref(null);
 const messages = ref([]);
 const disabled = ref(false);
@@ -19,8 +19,8 @@ const form = useForm({
 
 // methods
 const scrollToBottom = () => {
-    if (chatWindowRef.value) {
-        chatWindowRef.value.scrollTop = chatWindowRef.value.scrollHeight;
+    if (chatWindow.value.$el) {
+        chatWindow.value.$el.scrollTop = chatWindow.value.$el.scrollHeight;
     }
 };
 
@@ -48,7 +48,15 @@ const sendMessage = async () => {
 
         const responseMessage = messages.value[messages.value.length - 1];
 
-        scrollToBottom();
+        const formData = form.data();
+
+        // reset form
+        form.reset();
+        characterCount.value = 0;
+
+        setTimeout(() => { // slight delay to wait for the messages to be rendered
+            scrollToBottom();
+        }, 50);
 
         await fetch(route('chat'), {
                 method: 'POST',
@@ -57,7 +65,7 @@ const sendMessage = async () => {
                     'Content-Type': 'application/json', // Sending JSON data
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'), // CSRF Token for Laravel security
                 },
-                body: JSON.stringify(form.data()), // Send form data directly as JSON
+                body: JSON.stringify(formData), // Send form data directly as JSON
             })
             .then(function (response) {
                 if (!response.ok) {
@@ -88,9 +96,9 @@ const sendMessage = async () => {
                 let prevLastLine = "";
 
                 // Detect user scroll in the chatWindow
-                chatWindow.value.addEventListener("wheel", () => { scrolledByUser = true; });
-                chatWindow.value.addEventListener("mousewheel", () => { scrolledByUser = true; });
-                chatWindow.value.addEventListener("DOMMouseScroll", () => { scrolledByUser = true; });
+                chatWindow.value.$el.addEventListener("wheel", () => { scrolledByUser = true; });
+                chatWindow.value.$el.addEventListener("mousewheel", () => { scrolledByUser = true; });
+                chatWindow.value.$el.addEventListener("DOMMouseScroll", () => { scrolledByUser = true; });
 
                 const readStream = function() {
                     return reader.read().then(({ done, value }) => {
@@ -102,7 +110,9 @@ const sendMessage = async () => {
                             responseMessage.body = html;
 
                             if (!scrolledByUser) {
-                                scrollToBottom();
+                                setTimeout(() => { // slight delay to wait for the html to be rendered
+                                    scrollToBottom();
+                                }, 50);
                             }
 
                             responseMessage.typing = false;
@@ -165,17 +175,8 @@ const sendMessage = async () => {
                 responseMessage.typing = false;
                 disabled.value = false;
             })
-            .finally(() => {
-                // reset form
-                form.reset();
-                characterCount.value = 0;
-            })
     }
 };
-
-onMounted(() => {
-    console.log(chatWindowRef.value.scrollHeight);
-})
 
 </script>
 
@@ -185,7 +186,7 @@ onMounted(() => {
     <ChatLayout>
 
         <ChatWindow
-            ref="chatWindowRef"
+            ref="chatWindow"
             :messages="messages"
             :errors="errors"
             :disabled="disabled"

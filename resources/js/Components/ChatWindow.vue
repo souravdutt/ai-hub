@@ -8,6 +8,11 @@ const form = defineModel('form', {
     required: true,
 });
 
+const messages = defineModel('messages', {
+    type: Array,
+    required: false,
+});
+
 const sendMessage = defineModel('sendMessage', {
     type: Function,
     required: true,
@@ -18,17 +23,20 @@ const characterCount = defineModel('characterCount', {
     required: true,
 });
 
-// props
-defineProps({
-    messages: Object,
-    errors: Object,
-    disabled: Boolean,
+const errors = defineModel('errors', {
+    type: Object,
+    required: false,
+});
+
+const disabled = defineModel('disabled', {
+    type: Boolean,
+    required: false,
 });
 
 </script>
 
 <template>
-    <div id="chatWindow" ref="chatWindow" class="grid w-full gap-6 lg:gap-8 max-h-[calc(100vh-10.5rem)] overflow-auto">
+    <div id="chatWindow" ref="chatWindow" class="scrollbar grid w-full gap-6 lg:gap-8 max-h-[calc(100vh-10.5rem)] overflow-auto">
 
         <div
             class="flex flex-col items-start gap-6 overflow-hidden rounded-lg p-6 md:row-span-3 lg:p-10 lg:pb-10"
