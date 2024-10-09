@@ -1,189 +1,114 @@
 <script setup>
 import ChatMessage from '@/Components/ChatMessage.vue';
-import { ArrowUpIcon, XMarkIcon } from '@heroicons/vue/24/solid';
-import { useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
-import { marked } from 'marked'
-import DOMPurify from 'dompurify'
+import ChatImage from '@/Components/ChatImage.vue';
+import { ArrowUpIcon, XMarkIcon, ChatBubbleLeftRightIcon, PhotoIcon } from '@heroicons/vue/24/outline';
+import { defineModel } from 'vue';
 
-const chatWindow = ref(null);
-const errors = ref(null);
-const messages = ref([]);
-const disabled = ref(false);
-const characterCount = ref(0);
-
-
-// form
-const form = useForm({
-    message: '',
+const props = defineProps({
+    type: {
+        type: String,
+        default: 'chat',
+    },
+    maxCharacters: {
+        type: Number,
+        default: 1000,
+    }
 });
 
-const scrollToBottom = () => {
-    if (chatWindow.value) {
-        chatWindow.value.scrollTop = chatWindow.value.scrollHeight;
-    }
-};
+const form = defineModel('form', {
+    type: Object,
+    required: true,
+});
 
-// methods
-const sendMessage = async () => {
-    if (form.message?.trim()) {
-        disabled.value = true;
-        errors.value = null;
+const messages = defineModel('messages', {
+    type: Array,
+    required: true,
+});
 
-        const sentMessage = DOMPurify.sanitize(form.message.replace(/\n/g, '<br>'));
+const sendMessage = defineModel('sendMessage', {
+    type: Function,
+    required: true,
+});
 
-        // add user message to messages
-        messages.value.push({
-            id: messages.value.length + 1,
-            body: sentMessage,
-            sender: 'user',
-        });
+const hintMessages = defineModel('hintMessages', {
+    type: Array,
+    required: true,
+});
 
-        // add server message to messages
-        messages.value.push({
-            id: messages.value.length + 1,
-            body: '',
-            sender: 'server',
-            typing: true,
-        });
+const characterCount = defineModel('characterCount', {
+    type: Number,
+    required: true,
+});
 
-        const responseMessage = messages.value[messages.value.length - 1];
+const errors = defineModel('errors', {
+    type: Object,
+});
 
-        scrollToBottom();
+const disabled = defineModel('disabled', {
+    type: Boolean,
+});
 
-        await fetch(route('chat'), {
-                method: 'POST',
-                headers: {
-                    'Accept': 'text/event-stream', // Expecting a text/event-stream response
-                    'Content-Type': 'application/json', // Sending JSON data
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'), // CSRF Token for Laravel security
-                },
-                body: JSON.stringify(form.data()), // Send form data directly as JSON
-            })
-            .then(function (response) {
-                if (!response.ok) {
-                    responseMessage.typing = false;
-                    disabled.value = false;
-
-                    if (response.status === 422) {
-                        return response.json().then(function (errorResponse) {
-                            errors.value = errorResponse;
-                            errors.value.message = errorResponse.message[0];
-                            return Promise.reject(errors);
-                        });
-                    } else {
-                        return response.text().then(function (text) {
-                            console.error('Error:', text);
-                            return Promise.reject(errors);
-                        });
-                    }
-                }
-
-                return response.body;
-            })
-            .then(response => {
-                const reader = response.getReader();
-                const decoder = new TextDecoder("utf-8");
-
-                let scrolledByUser = false;
-                let prevLastLine = "";
-
-                // Detect user scroll in the chatWindow
-                chatWindow.value.addEventListener("wheel", () => { scrolledByUser = true; });
-                chatWindow.value.addEventListener("mousewheel", () => { scrolledByUser = true; });
-                chatWindow.value.addEventListener("DOMMouseScroll", () => { scrolledByUser = true; });
-
-                const readStream = function() {
-                    return reader.read().then(({ done, value }) => {
-                        if (done) {
-                            // console.log('Stream finished.');
-
-                            // Convert markdown to HTML
-                            let html = DOMPurify.sanitize(marked.parse(responseMessage.body));
-                            responseMessage.body = html;
-
-                            if (!scrolledByUser) {
-                                scrollToBottom();
-                            }
-
-                            responseMessage.typing = false;
-                            disabled.value = false;
-
-                            return;
-                        }
-
-                        const chunk = decoder.decode(value, { stream: true });
-                        const lines = chunk.split("\n\n");
-
-                        let firstLine = lines[0];
-                        let lastLine = lines[lines.length - 1];
-
-                        if (!firstLine.startsWith("data: ")) {
-                            lines[0] = prevLastLine + firstLine;
-                        }
-
-                        try {
-                            JSON.parse(lastLine.replace("data: ", ""));
-                            prevLastLine = '';
-                        } catch (error) {
-                            prevLastLine = lastLine;
-                            lines.pop();
-                        }
-
-                        lines.forEach(line => {
-                            if (line.startsWith("data: ")) {
-                                let buffer = line.replace("data: ", "");
-
-                                if (buffer === "[DONE]") {
-                                    console.log("Stream completed");
-                                } else {
-                                    try {
-                                        const parsedData = JSON.parse(buffer);
-                                        if (parsedData?.response) {
-                                            responseMessage.body += parsedData.response;
-                                        }
-                                    } catch (error) {
-                                        console.error("Error parsing chunk:", error);
-                                    }
-
-                                    document.querySelector(".conversation .loading-response")?.remove();
-
-                                    if (!scrolledByUser) {
-                                        scrollToBottom();
-                                    }
-                                }
-                            }
-                        });
-
-                        return readStream();
-                    });
-                }
-
-                readStream();
-            })
-            .catch(function (error) {
-                console.error('Error:', error);
-                responseMessage.typing = false;
-                disabled.value = false;
-            })
-            .finally(() => {
-                // reset form
-                form.reset();
-                characterCount.value = 0;
-            })
-    }
-};
 </script>
 
 <template>
-    <div id="chatWindow" ref="chatWindow" class="grid w-full gap-6 lg:gap-8 max-h-[calc(100vh-10.5rem)] overflow-auto">
+    <div id="chatWindow" ref="chatWindow" class="scrollbar grid w-full gap-6 lg:gap-8 max-h-[calc(100vh-10.5rem)] overflow-auto">
 
         <div
             class="flex flex-col items-start gap-6 overflow-hidden rounded-lg p-6 md:row-span-3 lg:p-10 lg:pb-10"
         >
 
             <div class="w-full">
-                <ChatMessage v-for="message in messages" :key="message.id" :message="message" />
+
+                <ChatImage
+                    v-if="messages.length && type === 'text-to-image'"
+                    v-for="message in messages"
+                    :key="message.id + 'text-to-image'"
+                    :message="message"
+                    :type="type"
+                />
+
+                <ChatMessage
+                    v-else-if="messages.length"
+                    v-for="message in messages"
+                    :key="message.id"
+                    :message="message"
+                />
+
+
+                <div v-else class="flex flex-col items-center justify-center gap-6 text-slate-800 dark:text-gray-300">
+
+                    <div v-if="type === 'text-to-image'" class="flex flex-col items-center gap-4">
+                        <PhotoIcon class="h-24 w-24 animate-pulse" />
+
+                        <span class="text-3xl font-bold">
+                            Showcase Your Creativity
+                        </span>
+
+                    </div>
+
+                    <div v-else class="flex flex-col items-center gap-4">
+                        <ChatBubbleLeftRightIcon class="h-24 w-24 animate-pulse" />
+
+                        <span class="text-3xl font-bold">
+                            Start conversation
+                        </span>
+                    </div>
+
+                    <span>
+                        Write your message or start with one of the following message
+                    </span>
+
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div
+                            v-for="message in hintMessages"
+                            :key="message"
+                            class="flex justify-center items-center rounded-lg px-4 py-8 text-center cursor-pointer bg-primary-50 text-primary-800 dark:bg-slate-900 dark:text-white"
+                            @click="sendMessage(null, message)"
+                        >
+                            {{ message }}
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -202,11 +127,11 @@ const sendMessage = async () => {
             <div
                 class="w-full text-end text-xs px-4 mb-1"
                 :class="{
-                    'text-yellow-600': characterCount > 2000 && characterCount <= 3000,
-                    'text-red-600': characterCount > 3000
+                    'text-yellow-600': characterCount > (maxCharacters / 2) && characterCount <= maxCharacters,
+                    'text-red-600': characterCount > maxCharacters
                 }"
             >
-                {{ characterCount }} / 3000
+                {{ characterCount }} / {{ maxCharacters }}
             </div>
 
             <div class="relative flex items-center bottom-0 w-full">
@@ -216,7 +141,7 @@ const sendMessage = async () => {
                     placeholder="Type a message here..."
                     v-model="form.message"
                     @keydown.enter.exact.prevent="sendMessage"
-                    @input="characterCount = form.message.trim().length"
+                    @input="characterCount = $event.target.value.length"
                     :disabled="disabled"
                     :class="{ 'cursor-not-allowed': disabled }"
                 ></textarea>

@@ -37,9 +37,12 @@ return [
 
     'workers' => [
         'ai' => [
-            'model_id' => env('WORKERS_MODEL_ID', '@cf/meta/llama-3.1-8b-instruct'),
             'account_id' => env('WORKERS_ACCOUNT_ID'),
             'api_token' => env('WORKERS_API_TOKEN'),
+            'models' => [
+                'nlp' => env('WORKERS_MODEL_ID_NLP', '@cf/meta/llama-3.1-8b-instruct'),
+                'tti' => env('WORKERS_MODEL_ID_TTI', '@cf/lykon/dreamshaper-8-lcm'),
+            ],
         ]
     ]
 

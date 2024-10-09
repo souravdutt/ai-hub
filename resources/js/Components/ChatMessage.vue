@@ -5,25 +5,33 @@ const props = defineProps({
         type: Object,
         required: true
     },
+    type: {
+        type: String,
+        required: true
+    }
 });
 
 </script>
 
 <template>
     <div
-        class="flex flex-col items-start gap-6 overflow-hidden rounded-lg my-5 md:row-span-3"
+        class="flex flex-col items-start gap-6 overflow-hidden my-8 md:row-span-3"
     >
 
         <div
-            class="w-full max-w-[90%]"
+            class="w-full max-w-[88%]"
             :class="{
                 'self-end': message.sender === 'user'
             }"
         >
             <div
-                class="w-full rounded-lg border border-black/20 bg-white px-4 py-3 text-lg text-black/70 dark:border-white/10 dark:bg-zinc-900 dark:text-white/70"
+                class="w-full text-lg"
+                :class="{
+                    'rounded-lg border border-black/20 bg-white px-4 py-4 dark:border-white/10 dark:bg-zinc-900 text-black/70 dark:text-white/70': type === 'chat' || message.sender === 'user',
+                }"
             >
                 <span v-html="message.body" />
+
                 <span
                     v-if="message.typing"
                     class="inline-flex ms-1 relative h-3 w-3">

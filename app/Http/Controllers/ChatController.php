@@ -16,17 +16,29 @@ class ChatController extends Controller
         $this->workersAI = $workersAI;
     }
 
+    public function index()
+    {
+        return Inertia::render('Welcome');
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'message' => 'required|string|min:3',
+            'history' => 'nullable|array',
+            'history.*.message' => 'nullable|string',
+            'history.*.sender' => 'required|string|in:user,server',
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        return $this->workersAI->regular($request->message);
+        $history = collect($request->history)->map(function ($message) {
+            return "{$message['sender']}:\n{$message['message']}";
+        })->implode("\n\n");
+
+        return $this->workersAI->regular($request->message, $history);
     }
 
 }
