@@ -13,9 +13,9 @@ defineProps({
 
 <template>
     <Link class="text-xl font-extrabold text-primary-600"
-        :href="href ?? route('welcome')"
+        :href="href || route('welcome')"
         :class="class"
     >
-    {{ $page.props.app.name ?? 'AI Hub' }}
+    {{ $page.props.app.name || 'AI Hub' }}
     </Link>
 </template>

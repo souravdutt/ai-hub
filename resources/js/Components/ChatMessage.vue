@@ -5,6 +5,10 @@ const props = defineProps({
         type: Object,
         required: true
     },
+    type: {
+        type: String,
+        required: true
+    }
 });
 
 </script>
@@ -21,9 +25,13 @@ const props = defineProps({
             }"
         >
             <div
-                class="w-full text-lg rounded-lg border border-black/20 bg-white px-4 py-4 dark:border-white/10 dark:bg-zinc-900 text-black/70 dark:text-white/70"
+                class="w-full text-lg"
+                :class="{
+                    'rounded-lg border border-black/20 bg-white px-4 py-4 dark:border-white/10 dark:bg-zinc-900 text-black/70 dark:text-white/70': type === 'chat' || message.sender === 'user',
+                }"
             >
                 <span v-html="message.body" />
+
                 <span
                     v-if="message.typing"
                     class="inline-flex ms-1 relative h-3 w-3">

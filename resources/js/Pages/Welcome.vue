@@ -1,7 +1,7 @@
 <script setup>
 import ChatWindow from '@/Components/ChatWindow.vue';
 import ChatLayout from '@/Layouts/ChatLayout.vue';
-import { onMounted, ref } from 'vue';
+import { reactive, ref } from 'vue';
 import { Marked } from 'marked'
 import DOMPurify from 'dompurify'
 import { useForm } from '@inertiajs/vue3';
@@ -25,6 +25,11 @@ const errors = ref(null);
 const messages = ref([]);
 const disabled = ref(false);
 const characterCount = ref(0);
+const hintMessages = reactive([
+    'Write hello world program in three programming language.',
+    'How to learn JavaScript?',
+    'How can I make myself productive?',
+]);
 
 // form
 const form = useForm({
@@ -214,7 +219,9 @@ const sendMessage = async (e, message = null) => {
 
         <ChatWindow
             ref="chatWindow"
+            max-characters="3000"
             :messages="messages"
+            :hint-messages="hintMessages"
             :errors="errors"
             :disabled="disabled"
             v-model:character-count="characterCount"

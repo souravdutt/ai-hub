@@ -1,7 +1,19 @@
 <script setup>
 import ChatMessage from '@/Components/ChatMessage.vue';
-import { ArrowUpIcon, XMarkIcon, ChatBubbleLeftRightIcon } from '@heroicons/vue/24/outline';
+import ChatImage from '@/Components/ChatImage.vue';
+import { ArrowUpIcon, XMarkIcon, ChatBubbleLeftRightIcon, PhotoIcon } from '@heroicons/vue/24/outline';
 import { defineModel } from 'vue';
+
+const props = defineProps({
+    type: {
+        type: String,
+        default: 'chat',
+    },
+    maxCharacters: {
+        type: Number,
+        default: 1000,
+    }
+});
 
 const form = defineModel('form', {
     type: Object,
@@ -10,11 +22,16 @@ const form = defineModel('form', {
 
 const messages = defineModel('messages', {
     type: Array,
-    required: false,
+    required: true,
 });
 
 const sendMessage = defineModel('sendMessage', {
     type: Function,
+    required: true,
+});
+
+const hintMessages = defineModel('hintMessages', {
+    type: Array,
     required: true,
 });
 
@@ -25,19 +42,11 @@ const characterCount = defineModel('characterCount', {
 
 const errors = defineModel('errors', {
     type: Object,
-    required: false,
 });
 
 const disabled = defineModel('disabled', {
     type: Boolean,
-    required: false,
 });
-
-const hintMessages = [
-    'Write hello world program in three programming language.',
-    'How to learn JavaScript?',
-    'How can I make myself productive?',
-];
 
 </script>
 
@@ -49,20 +58,51 @@ const hintMessages = [
         >
 
             <div class="w-full">
-                <ChatMessage v-if="messages.length" v-for="message in messages" :key="message.id" :message="message" />
-                <div v-else class="flex flex-col items-center justify-center gap-6">
-                    <ChatBubbleLeftRightIcon class="h-24 w-24 text-primary-700 dark:text-primary-700" />
-                    <span class="text-2xl">
-                        Start conversation
-                    </span>
+
+                <ChatImage
+                    v-if="messages.length && type === 'text-to-image'"
+                    v-for="message in messages"
+                    :key="message.id + 'text-to-image'"
+                    :message="message"
+                    :type="type"
+                />
+
+                <ChatMessage
+                    v-else-if="messages.length"
+                    v-for="message in messages"
+                    :key="message.id"
+                    :message="message"
+                />
+
+
+                <div v-else class="flex flex-col items-center justify-center gap-6 text-slate-800 dark:text-gray-300">
+
+                    <div v-if="type === 'text-to-image'" class="flex flex-col items-center gap-4">
+                        <PhotoIcon class="h-24 w-24 animate-pulse" />
+
+                        <span class="text-3xl font-bold">
+                            Showcase Your Creativity
+                        </span>
+
+                    </div>
+
+                    <div v-else class="flex flex-col items-center gap-4">
+                        <ChatBubbleLeftRightIcon class="h-24 w-24 animate-pulse" />
+
+                        <span class="text-3xl font-bold">
+                            Start conversation
+                        </span>
+                    </div>
+
                     <span>
                         Write your message or start with one of the following message
                     </span>
+
                     <div class="grid md:grid-cols-3 gap-4">
                         <div
                             v-for="message in hintMessages"
                             :key="message"
-                            class="flex justify-center items-center rounded-lg px-4 py-8 text-center cursor-pointer bg-primary-50 text-primary-800 dark:bg-primary-900 dark:text-white"
+                            class="flex justify-center items-center rounded-lg px-4 py-8 text-center cursor-pointer bg-primary-50 text-primary-800 dark:bg-slate-900 dark:text-white"
                             @click="sendMessage(null, message)"
                         >
                             {{ message }}
@@ -87,11 +127,11 @@ const hintMessages = [
             <div
                 class="w-full text-end text-xs px-4 mb-1"
                 :class="{
-                    'text-yellow-600': characterCount > 2000 && characterCount <= 3000,
-                    'text-red-600': characterCount > 3000
+                    'text-yellow-600': characterCount > (maxCharacters / 2) && characterCount <= maxCharacters,
+                    'text-red-600': characterCount > maxCharacters
                 }"
             >
-                {{ characterCount }} / 3000
+                {{ characterCount }} / {{ maxCharacters }}
             </div>
 
             <div class="relative flex items-center bottom-0 w-full">
